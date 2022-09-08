@@ -46,3 +46,10 @@ table#MainTable td {
     overflow: hidden;
     white-space: pre;
 }
+
+#drag {
+    border: 2px solid black;
+    border-radius: 3px;
+    padding: 5px;
+    display: inline-block;
+}

@@ -1,6 +1,13 @@
 const {clipboard} = require('electron')
 const { app, BrowserWindow } = require('electron')
 
+const { app, BrowserWindow, ipcMain, nativeImage, NativeImage } = require('electron')
+const path = require('path')
+const fs = require('fs')
+const https = require('https')
+
+
+
 // include the Node.js 'path' module at the top of your file
 const path = require('path')
 
@@ -25,6 +32,15 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
   createWindow()
+})
+
+
+ipcMain.on('ondragstart', (event, filePath) => {
+    console.log("On start drag");
+    event.sender.startDrag({
+        file: path.join(__dirname, filePath),
+        icon: iconName,
+    })
 })
 
 
