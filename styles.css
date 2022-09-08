@@ -23,7 +23,8 @@ table#MainTable td {
 
 
 .ColSpacerBetweenNames {
-    background-color: #DDD
+    background-color: #FFF;
+    text-align:center;
 }
 
 

@@ -49,21 +49,34 @@ function InsertHeader(table, rowIndex) {
 
 
 function InsertRow(table, rowIndex) {
-    row = table.insertRow(rowIndex);
+    let row = table.insertRow(rowIndex);
 
-    var cell0 = row.insertCell(0);
-    var input = cell0.appendChild(document.createElement("INPUT"));
+    let cells = [];
+    for (let x = 0; x < COL.Count; x++) {
+        cells[x] = row.insertCell(x);
+    }
+
+
+    var input = cells[COL.NewName].appendChild(document.createElement("INPUT"));
     input.addEventListener("keypress", function (e) { OnNewNameInputKeyPress(e, table, row) });
 
-    var cell1 = row.insertCell(1);
-    var cell2 = row.insertCell(2);
-    cell2.innerHTML = "test";
+    cells[COL.SpacerBetweenNames].innerText = "--->";
+
+    cells[COL.ExistingFile].innerText = "Existing file goes here";
+
+
+    cells[COL.NewName].setAttribute("class", "ColNewName")
+    cells[COL.SpacerBetweenNames].setAttribute("class", "ColSpacerBetweenNames")
+    cells[COL.ExistingFile].setAttribute("class", "ColExistingFile")
+    return row;
 }
 
 function OnNewNameInputKeyPress(event, table, row) {
     console.log(event.key)
     console.log(row.rowIndex)
     if (event.key == "Enter") {
-        InsertRow(table, row.rowIndex + 1)
+        let createdRow = InsertRow(table, row.rowIndex + 1);
+        console.log(createdRow );
+        createdRow.cells[COL.NewName].getElementsByTagName("INPUT")[0].focus();
     }
 }
