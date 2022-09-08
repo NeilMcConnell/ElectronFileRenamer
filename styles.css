@@ -12,26 +12,22 @@ table#MainTable td {
 }
 
 
-
-/*New Name Column*/
- table#MainTable col:nth-child(1){
-     background-color:#DDD
- }
-
-/*New Name*/
-table#MainTable col#NewName {
-    background-color: #DDD
+.RowHeader {
+    font-weight: bold;
 }
 
-/*can't apply alignment per column*/
-table#MainTable tr td:nth-child(1),
-table#MainTable tr td:nth-child(1) input
-{
+.ColNewName {
+    background-color: #DDD;
     text-align: right;
 }
 
 
-table#MainTable col#ExistingFile {
+.ColSpacerBetweenNames {
+    background-color: #DDD
+}
+
+
+.ColExistingFile {
     background-color: #FFFFA0
 }
 

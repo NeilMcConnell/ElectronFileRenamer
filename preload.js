@@ -11,43 +11,59 @@ window.addEventListener('DOMContentLoaded', () => {
   SetupTable()
 })
 
+const COL = {
+    NewName: 0,
+    SpacerBetweenNames: 1,
+    ExistingFile: 2,
+    Count: 3
+}
+
 function SetupTable() {
     console.log("setup table")
     table = document.getElementById('MainTable')
+    InsertHeader(table, 0);
 
-    for (let x = 0; x < 6; x++) {
-        InsertRow(table, x + 1);
+    for (let x = 1; x < 7; x++) {
+        InsertRow(table, x);
+    }
+}
+
+function InsertHeader(table, rowIndex) {
+    row = table.insertRow(rowIndex);
+    let cells = [];
+    for (let x = 0; x < COL.Count; x++) {
+        cells[x] = row.insertCell(x);
     }
 
-    //var row = table.insertRow();
-    //var cell0 = row.insertCell(0);
-    //var cell1 = row.insertCell(1);
-    //var cell2 = row.insertCell(2);
-    //var input = cell0.appendChild(document.createElement("INPUT"));
-    //cell2.innerHTML = "test";
-    //input.addEventListener("keypress", function (e) { OnKeyPress(e, table, row)});
+    cells[COL.NewName].innerText = "New Name";
+    cells[COL.NewName].setAttribute("class", "ColNewName RowHeader")
+
+    cells[COL.ExistingFile].innerText = "Existing File";
+    cells[COL.ExistingFile].setAttribute("class", "ColExistingFile RowHeader")
+
+
+
+
 
 }
 
-function OnKeyPress(event, table, row) {
-    console.log(event.key)
-    console.log(row.rowIndex)
-    if (event.key == "Enter")
-    {
-        InsertRow(table, row.rowIndex+1)
-    }
-}
 
 function InsertRow(table, rowIndex) {
     row = table.insertRow(rowIndex);
 
     var cell0 = row.insertCell(0);
     var input = cell0.appendChild(document.createElement("INPUT"));
-    input.addEventListener("keypress", function (e) { OnKeyPress(e, table, row) });
+    input.addEventListener("keypress", function (e) { OnNewNameInputKeyPress(e, table, row) });
 
     var cell1 = row.insertCell(1);
     var cell2 = row.insertCell(2);
     cell2.innerHTML = "test";
+}
 
-
+function OnNewNameInputKeyPress(event, table, row) {
+    console.log(event.key)
+    console.log(row.rowIndex)
+    if (event.key == "Enter") {
+        InsertRow(table, row.rowIndex + 1)
+    }
 }
