@@ -1,0 +1,37 @@
+/* #MainTable{
+    background-color: red
+}*/
+
+
+table#MainTable td {
+    padding: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+
+
+/*New Name Column*/
+ table#MainTable col:nth-child(1){
+     background-color:#DDD
+ }
+
+/*New Name*/
+table#MainTable col#NewName {
+    background-color: #DDD
+}
+
+/*can't apply alignment per column*/
+table#MainTable tr td:nth-child(1),
+table#MainTable tr td:nth-child(1) input
+{
+    text-align: right;
+}
+
+
+table#MainTable col#ExistingFile {
+    background-color: #FFFFA0
+}
+
