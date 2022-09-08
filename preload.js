@@ -64,6 +64,11 @@ function InsertRow(table, rowIndex) {
     cells[COL.SpacerBetweenNames].innerText = "--->";
 
     cells[COL.ExistingFile].innerText = "Existing file goes here";
+    cells[COL.ExistingFile].addEventListener("dragover", function (e) { e.preventDefault() }, false);
+    cells[COL.ExistingFile].addEventListener("drop", function (e) { OnExistingFileDrop(e, table, row) });
+    cells[COL.ExistingFile].addEventListener("dragenter", function (e) { OnExistingFileDragEnter(e) });
+    cells[COL.ExistingFile].addEventListener("dragleave", function (e) { OnExistingFileDragLeave(e) });
+    cells[COL.ExistingFile].addEventListener("dragleave", function (e) { e.target.setAttribute("class", "ColExistingFile") });
 
 
     cells[COL.NewName].setAttribute("class", "ColNewName")
@@ -94,7 +99,8 @@ function OnNewNamePaste(event, table, row) {
         row.cells[COL.NewName].getElementsByTagName("INPUT")[0].value = pastedLines[0];
         for (let x = 1; x < pastedLines.length; ++x) {
             let createdRow = InsertRow(table, row.rowIndex + x);
-            createdRow.cells[COL.NewName].getElementsByTagName("INPUT")[0].value = pastedLines[x];
+            let input = createdRow.cells[COL.NewName].getElementsByTagName("INPUT")[0];
+            input.value = pastedLines[x];
         }
         let finalRow = InsertRow(table, row.rowIndex + pastedLines.length);
         finalRow.cells[COL.NewName].getElementsByTagName("INPUT")[0].focus();
@@ -102,3 +108,47 @@ function OnNewNamePaste(event, table, row) {
         return false;
     }
 }
+
+function OnExistingFileDrop(event, table, row) {
+    let items = [];
+    if (event.dataTransfer.items) {
+        items = event.dataTransfer.items;
+    }
+    else {
+        items = event.dataTransfer.files;
+    }
+
+    if (items.length == 1) {
+        let file = items[0].getAsFile();
+        if (file != null) {
+            event.target.innerText = file.path;
+        }
+    }
+    event.target.setAttribute("class", "ColExistingFile")
+}
+
+
+function OnExistingFileDragEnter(e) {
+    let items = [];
+    if (e.dataTransfer.items) {
+        items = e.dataTransfer.items;
+    }
+    else {
+        items = e.dataTransfer.files;
+    }
+
+    if (items.length == 1) {
+        e.target.setAttribute("class", "ColExistingFile Selected")
+    }
+    else {
+        e.target.setAttribute("class", "ColExistingFile Problem")
+    }
+}
+
+
+
+function OnExistingFileDragLeave(e) {
+    e.target.setAttribute("class", "ColExistingFile")
+}
+
+

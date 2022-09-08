@@ -32,3 +32,10 @@ table#MainTable td {
     background-color: #FFFFA0
 }
 
+    .ColExistingFile.Selected {
+        background-color: #CCCC00
+    }
+
+    .ColExistingFile.Problem {
+        background-color: #CC0000
+    }
