@@ -59,6 +59,7 @@ function InsertRow(table, rowIndex) {
 
     var input = cells[COL.NewName].appendChild(document.createElement("INPUT"));
     input.addEventListener("keypress", function (e) { OnNewNameInputKeyPress(e, table, row) });
+    input.onpaste = function (e) { return OnNewNamePaste(e, table, row) };
 
     cells[COL.SpacerBetweenNames].innerText = "--->";
 
@@ -78,5 +79,26 @@ function OnNewNameInputKeyPress(event, table, row) {
         let createdRow = InsertRow(table, row.rowIndex + 1);
         console.log(createdRow );
         createdRow.cells[COL.NewName].getElementsByTagName("INPUT")[0].focus();
+    }
+}
+
+function OnNewNamePaste(event, table, row) {
+    console.log(event)
+
+    let pasted = event.clipboardData.getData("text")
+    let pastedLines = pasted.split(/\r\n|\r|\n/)
+    if (pastedLines.length < 2) {
+        return true;
+    }
+    else {
+        row.cells[COL.NewName].getElementsByTagName("INPUT")[0].value = pastedLines[0];
+        for (let x = 1; x < pastedLines.length; ++x) {
+            let createdRow = InsertRow(table, row.rowIndex + x);
+            createdRow.cells[COL.NewName].getElementsByTagName("INPUT")[0].value = pastedLines[x];
+        }
+        let finalRow = InsertRow(table, row.rowIndex + pastedLines.length);
+        finalRow.cells[COL.NewName].getElementsByTagName("INPUT")[0].focus();
+
+        return false;
     }
 }
