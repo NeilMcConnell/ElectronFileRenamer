@@ -26,6 +26,7 @@ function SetupTable() {
     for (let x = 1; x < 7; x++) {
         InsertRow(table, x);
     }
+    AdjustInputForContents();
 }
 
 function InsertHeader(table, rowIndex) {
@@ -56,6 +57,9 @@ function InsertRow(table, rowIndex) {
         cells[x] = row.insertCell(x);
     }
 
+
+    var hiddenInputSpacer = cells[COL.NewName].appendChild(document.createElement("SPAN"));
+    hiddenInputSpacer.setAttribute("class", "hiddenInputSpacer")
 
     var input = cells[COL.NewName].appendChild(document.createElement("INPUT"));
     input.addEventListener("keypress", function (e) { OnNewNameInputKeyPress(e, table, row) });
@@ -96,7 +100,8 @@ function OnNewNamePaste(event, table, row) {
         return true;
     }
     else {
-        row.cells[COL.NewName].getElementsByTagName("INPUT")[0].value = pastedLines[0];
+        let input = row.cells[COL.NewName].getElementsByTagName("INPUT")[0];
+        input.value = pastedLines[0];
         for (let x = 1; x < pastedLines.length; ++x) {
             let createdRow = InsertRow(table, row.rowIndex + x);
             let input = createdRow.cells[COL.NewName].getElementsByTagName("INPUT")[0];
@@ -104,10 +109,40 @@ function OnNewNamePaste(event, table, row) {
         }
         let finalRow = InsertRow(table, row.rowIndex + pastedLines.length);
         finalRow.cells[COL.NewName].getElementsByTagName("INPUT")[0].focus();
-
+        AdjustInputForContents();
         return false;
     }
 }
+
+
+//https://stackoverflow.com/questions/8100770/auto-scaling-inputtype-text-to-width-of-value  (a simple but pixel perfect solution)
+function AdjustInputForContents() {
+    table = document.getElementById('MainTable')
+    let maxWidth = 200;
+
+    for (row of table.rows) {
+        let inputCell = row.cells[COL.NewName];
+        let inputs = inputCell.getElementsByTagName("INPUT");
+        let hiddenspacers = inputCell.getElementsByClassName("hiddenInputSpacer");
+
+        if (inputs.length == 1 && hiddenspacers.length == 1) {
+            hiddenspacers[0].textContent = inputs[0].value;
+  
+            maxWidth = Math.max(maxWidth, hiddenspacers[0].offsetWidth)
+        }
+    }
+
+    console.log(maxWidth);
+
+    for (row of table.rows) {
+        let inputCell = row.cells[COL.NewName];
+        let inputs = inputCell.getElementsByTagName("INPUT");
+        if (inputs.length == 1 ) {
+            inputs[0].style.width = maxWidth +  "px";
+        }
+    }
+}
+
 
 function OnExistingFileDrop(event, table, row) {
     let items = [];

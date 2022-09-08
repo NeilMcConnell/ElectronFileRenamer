@@ -39,3 +39,10 @@ table#MainTable td {
     .ColExistingFile.Problem {
         background-color: #CC0000
     }
+
+.hiddenInputSpacer {
+    position: absolute;
+    height: 0;
+    overflow: hidden;
+    white-space: pre;
+}
