@@ -4,6 +4,9 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electron', {
     startDrag: (fileName) => {
         ipcRenderer.send('ondragstart', fileName)
+    },
+    drop: (fileName) => {
+        ipcRenderer.send('ondragend', fileName)
     }
 })
 
@@ -24,7 +27,8 @@ const COL = {
     NewName: 0,
     SpacerBetweenNames: 1,
     ExistingFile: 2,
-    Count: 3
+    Status: 3,
+    Count: 4
 }
 
 function SetupTable() {
@@ -87,6 +91,7 @@ function InsertRow(table, rowIndex) {
     cells[COL.NewName].setAttribute("class", "ColNewName")
     cells[COL.SpacerBetweenNames].setAttribute("class", "ColSpacerBetweenNames")
     cells[COL.ExistingFile].setAttribute("class", "ColExistingFile")
+    cells[COL.Status].setAttribute("class", "ColStatus");
     return row;
 }
 
@@ -150,6 +155,8 @@ function AdjustInputForContents() {
             inputs[0].style.width = maxWidth +  "px";
         }
     }
+
+    ipcRenderer.send('ontableupdate', table.rows.length);
 }
 
 
@@ -166,6 +173,7 @@ function OnExistingFileDrop(event, table, row) {
         let file = items[0].getAsFile();
         if (file != null) {
             event.target.innerText = file.path;
+            UpdateMainWithNewTableContents();
         }
     }
     event.target.setAttribute("class", "ColExistingFile")

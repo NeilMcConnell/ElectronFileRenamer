@@ -40,6 +40,13 @@ table#MainTable td {
         background-color: #CC0000
     }
 
+.ColStatus{
+    background-color: #000;
+    height: 30px;
+    width:30px;
+}
+
+
 .hiddenInputSpacer {
     position: absolute;
     height: 0;
