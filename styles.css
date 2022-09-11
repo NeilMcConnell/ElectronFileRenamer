@@ -41,7 +41,7 @@ table#MainTable td {
     }
 
 .ColStatus{
-    background-color: #000;
+    /*background-color: #000;*/
     height: 30px;
     width:30px;
 }

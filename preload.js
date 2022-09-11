@@ -156,11 +156,12 @@ function AdjustInputForContents() {
         }
     }
 
-    ipcRenderer.send('ontableupdate', table.rows.length);
+    SendUpdatedTableState();
 }
 
 
 function OnExistingFileDrop(event, table, row) {
+    console.log("drop")
     let items = [];
     if (event.dataTransfer.items) {
         items = event.dataTransfer.items;
@@ -169,15 +170,45 @@ function OnExistingFileDrop(event, table, row) {
         items = event.dataTransfer.files;
     }
 
-    if (items.length == 1) {
-        let file = items[0].getAsFile();
-        if (file != null) {
-            event.target.innerText = file.path;
-            UpdateMainWithNewTableContents();
-        }
+    if (items.length != 1) {
+        return null;
+    }
+
+    let file = items[0].getAsFile();
+    if (file != null) {
+        event.target.innerText = file.path;
+        if (file.type.startsWith("image/"))
+            StartAcceptingImageFile(file, row);
+        else
+            ShowInvalidFile(file, row);
     }
     event.target.setAttribute("class", "ColExistingFile")
 }
+
+function ShowInvalidFile(file, row) {
+    let cell = row.cells[COL.Status];
+    cell.innerHTML = "";
+    cell.innerText = "Not an image";
+}
+
+function StartAcceptingImageFile(file, row) {
+    let cell = row.cells[COL.Status];
+    cell.innerHTML = "";
+    cell.innerText = "Loading. . .";
+    console.log(file);
+    file.text().then(
+        (value) => {
+            console.log("read done.  good. " + file.path);
+            cell.innerText = "";
+            //let image = document.createElement("IMAGE");
+            let image = new Image(40, 40);
+            image.src = file.path;
+            cell.appendChild(image);
+        },
+        (value) => { cell.innerText="Read Failed" })
+
+}
+
 
 
 function OnExistingFileDragEnter(e) {
@@ -189,7 +220,9 @@ function OnExistingFileDragEnter(e) {
         items = e.dataTransfer.files;
     }
 
-    if (items.length == 1) {
+    console.log(items);
+
+if (items.length == 1) {
         e.target.setAttribute("class", "ColExistingFile Selected")
     }
     else {
@@ -198,9 +231,21 @@ function OnExistingFileDragEnter(e) {
 }
 
 
+function GetValidDroppableFile(dataTransfer) {
+}
+
 
 function OnExistingFileDragLeave(e) {
     e.target.setAttribute("class", "ColExistingFile")
 }
 
 
+function ReadNewFile(file) {
+    console.log(file);
+
+
+}
+
+function SendUpdatedTableState(){
+
+}
