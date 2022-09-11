@@ -48,6 +48,12 @@ ipcMain.on('ondragend', (event, filePath) => {
 })
 
 
+ipcMain.on("fileContents", (event, path, contents) =>
+{
+    console.log("received file contents for " + path);
+    console.log("contents " + contents.length);
+})
+
 ipcMain.on('ontableupdate', (event, rowCount) => {
     console.log("OnTAbleUpdate, rows: " + rowCount);
 })

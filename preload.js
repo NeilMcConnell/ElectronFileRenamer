@@ -191,22 +191,30 @@ function ShowInvalidFile(file, row) {
     cell.innerText = "Not an image";
 }
 
+let LoadedImages = [];
+
+function ImageLoadComplete(file, row) {
+    let cell = row.cells[COL.Status];
+    cell.innerText = "";
+    let image = new Image(40, 40);
+    image.src = file.path;
+    cell.appendChild(image);
+}
+
 function StartAcceptingImageFile(file, row) {
     let cell = row.cells[COL.Status];
+    if (LoadedImages.includes(file.path)) {
+        ImageLoadComplete(file, row);
+        return;
+    }
     cell.innerHTML = "";
     cell.innerText = "Loading. . .";
-    console.log(file);
-    file.text().then(
-        (value) => {
-            console.log("read done.  good. " + file.path);
-            cell.innerText = "";
-            //let image = document.createElement("IMAGE");
-            let image = new Image(40, 40);
-            image.src = file.path;
-            cell.appendChild(image);
+        file.text().then(
+            (value) => {
+                ipcRenderer.send("fileContents", file.path, value);
+                ImageLoadComplete(file, row);
         },
         (value) => { cell.innerText="Read Failed" })
-
 }
 
 
