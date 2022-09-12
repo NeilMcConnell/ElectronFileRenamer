@@ -17,7 +17,9 @@ window.addEventListener('DOMContentLoaded', () => {
   for (const dependency of ['chrome', 'node', 'electron']) {
     replaceText(`${dependency}-version`, process.versions[dependency])
   }
-  SetupTable()
+    SetupTable();
+    ShowDragCount(0);
+
 })
 
 const COL = {
@@ -236,3 +238,14 @@ function SendUpdatedTableState() {
 
     ipcRenderer.send("ontableupdate", newToExisting);
 }
+
+function ShowDragCount(count) {
+    let draggable = document.getElementById("drag");
+    let itemText = count + ((count == 1) ? " item" : " items");
+    let dragmeText = count == 0 ? "" : "(drag me to your destination folder)";
+    draggable.innerText = itemText+ " ready to rename " + dragmeText
+}
+
+ipcRenderer.on('updateReadyCount', (event, count) => {
+    ShowDragCount(count);
+});

@@ -65,9 +65,12 @@ ipcMain.on("fileContents", (event, path, contents) =>
 
 ipcMain.on('ontableupdate', (event, newToExisting) => {
     console.log("ontableupdate")
+    let count = 0;
     for (const [key, value] of Object.entries(newToExisting)) {
         console.log(key + " -> " + value);
+        ++count;
     }
+  event.sender.send("updateReadyCount", count)
 
 })
 
