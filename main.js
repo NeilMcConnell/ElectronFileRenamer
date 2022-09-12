@@ -45,11 +45,10 @@ const iconName = path.join(__dirname, 'drag_icon.png');
 function getDragFiles() {
     //let files = new DataTransferItemList();
     let files = [];
-    files[0] ='C:\\Users\\neil_\\Downloads\\platform-tools_r33.0.3-windows\\platform-tools\\test.txt';
-    files[1] = 'C:\\Users\\neil_\\Downloads\\platform-tools_r33.0.3-windows\\platform-tools\\test2.txt';
-
-    console.log(files[1]);
-
+    for (const [key, value] of Object.entries(newToExistingRequested)) {
+        if (newToExistingInFolder[key] == value)
+            files.push(composeTempFileName(key, value));
+    }
    return files;
 }
 
@@ -85,13 +84,18 @@ ipcMain.on('ontableupdate', (event, newToExisting) => {
 })
 
 
+function composeTempFileName(newName, existingFileName) {
+    let destFile = newName + path.extname(existingFileName);
+    let destPath = path.join(tempFolder, destFile);
+    return destPath;
+}
+
 function sheduleFileTransfers(newToExisting) {
     for (const [key, value] of Object.entries(newToExisting)) {
         if (newToExistingInFlight[key] == null)
             newToExistingInFlight[key] = Promise.resolve(true);
         newToExistingInFlight[key] = newToExistingInFlight[key].finally(async () => {
-            let destFile = key + path.extname(value);
-            let destPath = path.join(tempFolder, destFile);
+            let destPath = composeTempFileName(key, value);
             console.log("moving from " + value + " to " + destPath);
             await fs.copyFile(value, destPath, (err) => onFinishedFileCopy(key, value, err))
         })
