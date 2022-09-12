@@ -4,9 +4,6 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electron', {
     startDrag: (fileName) => {
         ipcRenderer.send('ondragstart', fileName)
-    },
-    drop: (fileName) => {
-        ipcRenderer.send('ondragend', fileName)
     }
 })
 
@@ -54,13 +51,9 @@ function InsertHeader(table, rowIndex) {
 
     cells[COL.ExistingFile].innerText = "Existing File";
     cells[COL.ExistingFile].setAttribute("class", "ColExistingFile RowHeader")
-
-
-
-
-
 }
 
+const ExistingFilePlaceHolder = "(drop image file here)";
 
 function InsertRow(table, rowIndex) {
     let row = table.insertRow(rowIndex);
@@ -80,7 +73,7 @@ function InsertRow(table, rowIndex) {
 
     cells[COL.SpacerBetweenNames].innerText = "--->";
 
-    cells[COL.ExistingFile].innerText = "Existing file goes here";
+    cells[COL.ExistingFile].innerText = ExistingFilePlaceHolder;
     cells[COL.ExistingFile].addEventListener("dragover", function (e) { e.preventDefault() }, false);
     cells[COL.ExistingFile].addEventListener("drop", function (e) { OnExistingFileDrop(e, table, row) });
     cells[COL.ExistingFile].addEventListener("dragenter", function (e) { OnExistingFileDragEnter(e) });
@@ -174,49 +167,24 @@ function OnExistingFileDrop(event, table, row) {
         return null;
     }
 
+    let cell = row.cells[COL.Status];
+
     let file = items[0].getAsFile();
     if (file != null) {
         event.target.innerText = file.path;
-        if (file.type.startsWith("image/"))
-            StartAcceptingImageFile(file, row);
-        else
-            ShowInvalidFile(file, row);
+        SendUpdatedTableState();
+        if (file.type.startsWith("image/")) {
+            cell.innerText = "";
+            let image = new Image(40, 40);
+            image.src = file.path;
+            cell.appendChild(image);
+        }
+        else {
+            cell.innerHTML = "Not an image";
+        }
     }
     event.target.setAttribute("class", "ColExistingFile")
 }
-
-function ShowInvalidFile(file, row) {
-    let cell = row.cells[COL.Status];
-    cell.innerHTML = "";
-    cell.innerText = "Not an image";
-}
-
-let LoadedImages = [];
-
-function ImageLoadComplete(file, row) {
-    let cell = row.cells[COL.Status];
-    cell.innerText = "";
-    let image = new Image(40, 40);
-    image.src = file.path;
-    cell.appendChild(image);
-}
-
-function StartAcceptingImageFile(file, row) {
-    let cell = row.cells[COL.Status];
-    if (LoadedImages.includes(file.path)) {
-        ImageLoadComplete(file, row);
-        return;
-    }
-    cell.innerHTML = "";
-    cell.innerText = "Loading. . .";
-        file.text().then(
-            (value) => {
-                ipcRenderer.send("fileContents", file.path, value);
-                ImageLoadComplete(file, row);
-        },
-        (value) => { cell.innerText="Read Failed" })
-}
-
 
 
 function OnExistingFileDragEnter(e) {
@@ -239,21 +207,32 @@ if (items.length == 1) {
 }
 
 
-function GetValidDroppableFile(dataTransfer) {
-}
-
-
 function OnExistingFileDragLeave(e) {
     e.target.setAttribute("class", "ColExistingFile")
 }
 
 
-function ReadNewFile(file) {
-    console.log(file);
+function SendUpdatedTableState() {
+    console.log("SendUpdatedTableState")
+    table = document.getElementById('MainTable')
 
+    let newToExisting = new Object();
 
-}
+    for (row of table.rows) {
+        console.log("I'm a row");
+        let inputCell = row.cells[COL.NewName];
+        let input = inputCell.getElementsByTagName("INPUT")[0];
+        if (!input || !input.value)
+            continue;
+        console.log("I have input");
 
-function SendUpdatedTableState(){
+        let existingFileCell = row.cells[COL.ExistingFile];
+        if (!existingFileCell.innerText || existingFileCell.innerText == ExistingFilePlaceHolder)
+            continue;
+        console.log("I have an existing file");
 
+        newToExisting[input.value] = existingFileCell.innerText
+    }
+
+    ipcRenderer.send("ontableupdate", newToExisting);
 }

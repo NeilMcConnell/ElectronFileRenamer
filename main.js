@@ -7,6 +7,20 @@ const https = require('https')
 
 console.log("blarg")
 console.log(app.getPath("userData"))
+console.log(app.getPath("temp"))
+
+let tempFolder = CreateTempFolder();
+console.log(tempFolder);
+
+
+function CreateTempFolder() {
+    temp = path.join(app.getPath("temp"), "electronFileRenamer");
+
+    if (!fs.existsSync(temp)) {
+        fs.mkdirSync(temp);
+    }
+    return temp;
+}
 
 
 const createWindow = () => {
@@ -43,19 +57,18 @@ ipcMain.on('ondragstart', (event, filePath) => {
     })
 })
 
-ipcMain.on('ondragend', (event, filePath) => {
-    console.log("On drop");
-})
-
-
 ipcMain.on("fileContents", (event, path, contents) =>
 {
     console.log("received file contents for " + path);
     console.log("contents " + contents.length);
 })
 
-ipcMain.on('ontableupdate', (event, rowCount) => {
-    console.log("OnTAbleUpdate, rows: " + rowCount);
+ipcMain.on('ontableupdate', (event, newToExisting) => {
+    console.log("ontableupdate")
+    for (const [key, value] of Object.entries(newToExisting)) {
+        console.log(key + " -> " + value);
+    }
+
 })
 
 
