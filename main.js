@@ -22,9 +22,10 @@ function CreateTempFolder() {
     return temp;
 }
 
+let win = null;
 
 const createWindow = () => {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -35,7 +36,6 @@ const createWindow = () => {
   win.loadFile('index.html')
 }
 
-
 app.whenReady().then(() => {
   createWindow()
 })
@@ -43,9 +43,13 @@ app.whenReady().then(() => {
 const iconName = path.join(__dirname, 'drag_icon.png');
 
 function getDragFiles() {
-   let files = []
-    files[0] = "13 files"
-    files[1] = "13 files"
+    //let files = new DataTransferItemList();
+    let files = [];
+    files[0] ='C:\\Users\\neil_\\Downloads\\platform-tools_r33.0.3-windows\\platform-tools\\test.txt';
+    files[1] = 'C:\\Users\\neil_\\Downloads\\platform-tools_r33.0.3-windows\\platform-tools\\test2.txt';
+
+    console.log(files[1]);
+
    return files;
 }
 
@@ -63,6 +67,11 @@ ipcMain.on("fileContents", (event, path, contents) =>
     console.log("contents " + contents.length);
 })
 
+let newToExistingRequested = new Object();  // wanted
+let newToExistingInFolder = new Object();   // currently in temp folder
+let newToExistingInFlight = new Object();   // Promise - the file copy that is in progress
+
+
 ipcMain.on('ontableupdate', (event, newToExisting) => {
     console.log("ontableupdate")
     let count = 0;
@@ -70,9 +79,39 @@ ipcMain.on('ontableupdate', (event, newToExisting) => {
         console.log(key + " -> " + value);
         ++count;
     }
-  event.sender.send("updateReadyCount", count)
-
+    newToExistingRequested = newToExisting;
+    countReadyItems();
+    sheduleFileTransfers(newToExisting);
 })
+
+
+function sheduleFileTransfers(newToExisting) {
+    for (const [key, value] of Object.entries(newToExisting)) {
+        if (newToExistingInFlight[key] == null)
+            newToExistingInFlight[key] = Promise.resolve(true);
+        newToExistingInFlight[key] = newToExistingInFlight[key].finally(async () => {
+            let destFile = key + path.extname(value);
+            let destPath = path.join(tempFolder, destFile);
+            console.log("moving from " + value + " to " + destPath);
+            await fs.copyFile(value, destPath, (err) => onFinishedFileCopy(key, value, err))
+        })
+    }
+}
+
+function onFinishedFileCopy(newName, existingFile, err) {
+    newToExistingInFolder[newName] = existingFile;
+    countReadyItems();
+}
+
+function countReadyItems() {
+    let count = 0;
+    for (const [key, value] of Object.entries(newToExistingRequested)) {
+        if (newToExistingInFolder[key] == value)
+            count++;
+    }
+   win.webContents.send("updateReadyCount", count)
+}
+
 
 
 
